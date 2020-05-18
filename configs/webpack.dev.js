@@ -17,48 +17,48 @@ module.exports = () => {
         // contentBase: './dist', // Content base
         inline: true, // Enable watch and live reload
         host: 'localhost',
-        port: 8100,
+        port: 8200,
         stats: 'errors-only',
         hot: true,
         proxy: [
             {
                 path: '/favicon.ico',
-                target: 'http://localhost:8084',
+                target: 'http://localhost:8094',
                 xfwd: true,
                 secure: false,
                 changeOrigin: true
             },
             {
                 path: '/favicons/**',
-                target: 'http://localhost:8084',
+                target: 'http://localhost:8094',
                 xfwd: true,
                 secure: false,
                 changeOrigin: true
             },
             {
                 path: '/static/**',
-                target: 'http://localhost:8084',
+                target: 'http://localhost:8094',
                 xfwd: true,
                 secure: false,
                 changeOrigin: true
             },
             {
                 path: '/api/v1/auth/**',
-                target: 'http://localhost:8084',
+                target: 'http://localhost:8094',
                 xfwd: true,
                 secure: false,
                 changeOrigin: true
             },
             {
                 path: '/api/v1/ams',
-                target: 'http://localhost:8084',
+                target: 'http://localhost:8094',
                 xfwd: true,
                 secure: false,
                 changeOrigin: true
             },
             {
                 path: '/api/v1/ams/**',
-                target: 'http://localhost:8084',
+                target: 'http://localhost:8094',
                 xfwd: true,
                 secure: false,
                 changeOrigin: true
