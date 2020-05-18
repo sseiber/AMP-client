@@ -5,7 +5,7 @@
                 "name": "Launch Web Client (Chrome)",
                 "type": "chrome",
                 "request": "launch",
-                "url": "http://localhost:8200/ampplayer",
+                "url": "http://localhost:8200/user",
                 "webRoot": "${workspaceFolder}/src",
                 "sourceMaps": true,
                 "smartStep": true,

@@ -1,5 +1,5 @@
 import { EventEmitter2, Listener } from 'eventemitter2';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 import * as Stores from '.';
 
 export interface DataStore {

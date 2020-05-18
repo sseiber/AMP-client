@@ -1,7 +1,7 @@
 // tslint:disable:max-line-length
 import * as React from 'react';
 import { Segment, Header, Button, Modal } from 'semantic-ui-react';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 
 interface IPrivacyDialogState {
     visible: boolean;

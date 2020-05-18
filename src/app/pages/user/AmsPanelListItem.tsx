@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Button, Item, Label, Grid } from 'semantic-ui-react';
+import { bind } from '../../../utils';
 
 interface IAmsPanelListItemProps {
-    iotcScopeId: string;
+    id: string;
     amsAadClientId: string;
     amsAadSecret: string;
     amsAadTenantId: string;
@@ -13,12 +14,12 @@ interface IAmsPanelListItemProps {
     amsArmAadAudience: string;
     amsArmEndpoint: string;
     amsAadEndpoint: string;
+    onEditAmsAccountClicked: (amsAccount: any) => (void);
 }
 
 export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}> {
     public render() {
         const {
-            iotcScopeId,
             amsAadClientId,
             amsAadSecret,
             amsAadTenantId,
@@ -28,7 +29,8 @@ export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}
             amsSubscriptionId,
             amsArmAadAudience,
             amsArmEndpoint,
-            amsAadEndpoint
+            amsAadEndpoint,
+            onEditAmsAccountClicked
         } = this.props;
 
         return (
@@ -78,14 +80,9 @@ export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}
                     </Grid>
                     <Grid>
                         <Grid.Row>
-                            <Grid.Column width={8}>
+                            <Grid.Column width={16}>
                                 <Item.Extra>
-                                    <Label icon="computer" content={`Scope Id: ${iotcScopeId}`} />
-                                </Item.Extra>
-                            </Grid.Column>
-                            <Grid.Column width={8}>
-                                <Item.Extra>
-                                    <Button floated={'right'} size={'mini'}>Edit</Button>
+                                    <Button floated={'right'} size={'mini'} color={'green'} onClick={this.onEditPanelItem}>Edit</Button>
                                 </Item.Extra>
                             </Grid.Column>
                         </Grid.Row>
@@ -93,5 +90,37 @@ export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}
                 </Item.Content>
             </Item>
         );
+    }
+
+    @bind
+    private onEditPanelItem(e: any) {
+        const {
+            id,
+            amsAadClientId,
+            amsAadSecret,
+            amsAadTenantId,
+            amsAccountName,
+            amsRegion,
+            amsResourceGroup,
+            amsSubscriptionId,
+            amsArmAadAudience,
+            amsArmEndpoint,
+            amsAadEndpoint,
+            onEditAmsAccountClicked
+        } = this.props;
+
+        onEditAmsAccountClicked({
+            id,
+            amsAadClientId,
+            amsAadSecret,
+            amsAadTenantId,
+            amsAccountName,
+            amsRegion,
+            amsResourceGroup,
+            amsSubscriptionId,
+            amsArmAadAudience,
+            amsArmEndpoint,
+            amsAadEndpoint
+        });
     }
 }

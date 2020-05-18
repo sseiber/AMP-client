@@ -5,7 +5,7 @@ import { AmpPlayer } from '../components/AmpPlayer';
 import { observer, inject } from 'mobx-react';
 import moment from 'moment';
 import { parse as qsParse } from 'query-string';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 
 interface IAmpPlayerPage {
     amsStore: AmsStore;
@@ -13,6 +13,7 @@ interface IAmpPlayerPage {
 }
 
 interface IAmpPlayerPageState {
+    streamingStartTime: string;
     videoLoaded: boolean;
 }
 
@@ -22,6 +23,7 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
         super(props, context);
 
         this.state = {
+            streamingStartTime: '',
             videoLoaded: false
         };
     }
@@ -35,10 +37,15 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
         if (location.search) {
             const query = qsParse(location.search);
             if (query?.an) {
+                const accountName = query.ac as string;
                 const assetName = query.an as string;
-                const streamingStartTime = moment(query.st as string).toISOString() || moment(0).toISOString();
+                const streamingStartTime = (moment.utc(query.st as string, moment.ISO_8601, true) || moment.utc(0, moment.ISO_8601, true)).format('YYYY-MM-DDTHH:mm:ss[Z]');
 
-                await amsStore.createAmsStreamingLocator(assetName, streamingStartTime);
+                this.setState({
+                    streamingStartTime
+                });
+
+                await amsStore.createAmsStreamingLocator(accountName, assetName);
             }
         }
     }
@@ -48,7 +55,11 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
             amsStore
         } = this.props;
 
-        const dateHeader = moment.utc(amsStore.streamingStartTime).format('dddd, MMMM Do YYYY h:mm:ss a');
+        const {
+            streamingStartTime
+        } = this.state;
+
+        const dateHeader = moment.utc(streamingStartTime, moment.ISO_8601, true).format('dddd, MMMM Do YYYY h:mm:ss a');
 
         return (
             <Grid style={{ padding: '5em 5em' }}>
@@ -70,12 +81,16 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
             amsStore
         } = this.props;
 
+        const {
+            streamingStartTime
+        } = this.state;
+
         const sourceItem = amsStore.streamingLocatorFormats.find((item) => item.protocol === 'SmoothStreaming');
         if (sourceItem) {
             return (
                 <AmpPlayer
                     sourceUrl={sourceItem.streamingLocatorUrl}
-                    startTime={amsStore.streamingStartTime}
+                    startTime={streamingStartTime}
                     onVideoStarted={this.onVideoStarted}
                     onVideoEnded={this.onVideoEnded}
                     onVideoError={this.onVideoError}

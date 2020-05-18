@@ -1,7 +1,7 @@
 import { action, observable, computed } from 'mobx';
 import { FetchResponse } from '../../api/FetchHelper';
 import { StoreProvider, StoreEvents, DataStore } from '.';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 import _get from 'lodash.get';
 
 export enum ErrorTypes {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button, Modal } from 'semantic-ui-react';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 
 interface IConfirmationDialogProps {
     onConfirmationCompletion: (complete: boolean, data: any) => (void);

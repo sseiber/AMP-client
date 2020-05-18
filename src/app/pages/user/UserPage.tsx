@@ -1,25 +1,29 @@
 import * as React from 'react';
 import { Message, Grid } from 'semantic-ui-react';
-import { SessionStore, AmsStore } from '../../stores';
+import { SessionStore, AmsStore, ErrorStore } from '../../stores';
 import { observer, inject } from 'mobx-react';
-import { bind } from '../../../util';
+import { bind } from '../../../utils';
 import { AmsPanel } from './AmsPanel';
+import { RegisterAmsAccountDialog } from '../../components/RegisterAmsAccountDialog';
 
 interface IUserProps {
     sessionStore: SessionStore;
     amsStore: AmsStore;
+    errorStore: ErrorStore;
     history: any;
 }
 
-@inject('sessionStore', 'amsStore') @observer
+@inject('sessionStore', 'amsStore', 'errorStore') @observer
 export class UserPage extends React.Component<IUserProps, {}> {
-    public componentDidMount() {
+    private registerAmsAccountDialog: RegisterAmsAccountDialog;
+
+    public async componentDidMount() {
         const {
             sessionStore,
             amsStore
         } = this.props;
 
-        amsStore.getUserAmsAccounts();
+        await amsStore.getUserAmsAccounts();
     }
 
     public render() {
@@ -29,36 +33,64 @@ export class UserPage extends React.Component<IUserProps, {}> {
         } = this.props;
 
         const userDisplayName = sessionStore.displayName ? sessionStore.displayName : 'Ams User';
-        const userLinkUriProps = `?uid=${sessionStore.userId}`;
 
         return (
-            <Grid style={{ padding: '5em 5em' }}>
-                <Grid.Row>
-                    <Grid.Column>
-                        <Message size={'huge'} info>
-                            <Message.Header>AMP Client</Message.Header>
-                            <p>Registered AMS Accounts</p>
-                        </Message>
-                        <AmsPanel
-                            userDisplayName={userDisplayName}
-                            userLinkUriProps={userLinkUriProps}
-                            amsAccounts={amsStore.amsAccounts}
-                            onRegisterAmsAccountClicked={this.onRegisterAmsAccountClicked}
-                        />
-                    </Grid.Column>
-                </Grid.Row>
-            </Grid>
+            <div>
+                <Grid style={{ padding: '5em 5em' }}>
+                    <Grid.Row>
+                        <Grid.Column>
+                            <Message size={'huge'} info>
+                                <Message.Header>AMP Client</Message.Header>
+                                <p>Registered AMS Accounts</p>
+                            </Message>
+                            <AmsPanel
+                                userDisplayName={userDisplayName}
+                                amsAccounts={amsStore.amsAccounts}
+                                onRegisterAmsAccountClicked={this.onRegisterAmsAccountClicked}
+                                onEditAmsAccountClicked={this.onEditAmsAccountClicked}
+                            />
+                        </Grid.Column>
+                    </Grid.Row>
+                </Grid>
+                <RegisterAmsAccountDialog ref={r => this.registerAmsAccountDialog = r} />
+            </div>
         );
     }
 
     @bind
-    private onRegisterAmsAccountClicked(e: any) {
+    private onRegisterAmsAccountClicked() {
+        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, {});
+    }
+
+    @bind
+    private onEditAmsAccountClicked(amsAccount: any) {
+        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, amsAccount);
+    }
+
+    @bind
+    private async onRegisterAmsAccountDialogCompletion(amsAccount: any) {
         const {
-            history
+            amsStore,
+            errorStore
         } = this.props;
 
-        e.preventDefault();
+        let errorMessage;
 
-        history.push('/registeramsaccount');
+        try {
+            const result = await amsStore.setUserAmsAccount(amsAccount);
+            if (!result) {
+                errorMessage = `Error while trying to update the user AMS account`;
+            }
+        }
+        catch (error) {
+            errorMessage = error.message;
+        }
+
+        if (errorMessage) {
+            errorStore.showError(
+                'Account Registration Error',
+                errorMessage
+            );
+        }
     }
 }

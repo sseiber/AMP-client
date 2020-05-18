@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Button, Modal, ModalProps } from 'semantic-ui-react';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 import _pick from 'lodash.pick';
 
 interface IModalDialog extends ModalProps {
@@ -23,7 +23,12 @@ export class ModalDialog extends React.Component<IModalDialog, {}> {
         ]);
 
         return (
-            <Modal {...modalProps} onClose={onCancel} onKeyPress={this.onKeyPress}>
+            <Modal
+                {...modalProps}
+                closeOnDimmerClick={false}
+                onClose={onCancel}
+                onKeyPress={this.onKeyPress}
+            >
                 {this.props.children}
                 <Modal.Actions>
                     <Button color={'red'} onClick={onCancel}>Cancel</Button>

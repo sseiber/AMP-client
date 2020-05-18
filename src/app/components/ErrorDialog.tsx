@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button, Modal, Form } from 'semantic-ui-react';
 import { ErrorStore } from '../stores';
 import { observer, inject } from 'mobx-react';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 
 interface IErrorDialogProps {
     errorStore?: ErrorStore;

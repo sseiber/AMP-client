@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dimmer, Loader } from 'semantic-ui-react';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 import moment from 'moment';
 
 interface IAmpPlayerProps {

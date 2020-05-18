@@ -4,18 +4,18 @@ import { AmsPanelListItem } from './AmsPanelListItem';
 
 interface IAmsPanelProps {
     userDisplayName: string;
-    userLinkUriProps: string;
     amsAccounts: any[];
-    onRegisterAmsAccountClicked: (e: any) => (void);
+    onRegisterAmsAccountClicked: () => (void);
+    onEditAmsAccountClicked: (amsAccount: any) => (void);
 }
 
 export class AmsPanel extends React.Component<IAmsPanelProps, any> {
     public render() {
         const {
             userDisplayName,
-            userLinkUriProps,
             amsAccounts,
-            onRegisterAmsAccountClicked
+            onRegisterAmsAccountClicked,
+            onEditAmsAccountClicked
         } = this.props;
 
         return (
@@ -29,12 +29,12 @@ export class AmsPanel extends React.Component<IAmsPanelProps, any> {
                                     ? (
                                         <Item.Group divided>
                                             {
-                                                amsAccounts.map((amsItem, index) => {
+                                                amsAccounts.map((amsItem) => {
                                                     return (
 
                                                         <AmsPanelListItem
-                                                            key={index}
-                                                            iotcScopeId={amsItem.iotcScopeId}
+                                                            key={amsItem.id}
+                                                            id={amsItem.id}
                                                             amsAadClientId={amsItem.amsAadClientId}
                                                             amsAadSecret={amsItem.amsAadSecret}
                                                             amsAadTenantId={amsItem.amsAadTenantId}
@@ -45,6 +45,7 @@ export class AmsPanel extends React.Component<IAmsPanelProps, any> {
                                                             amsArmAadAudience={amsItem.amsArmAadAudience}
                                                             amsArmEndpoint={amsItem.amsArmEndpoint}
                                                             amsAadEndpoint={amsItem.amsAadEndpoint}
+                                                            onEditAmsAccountClicked={onEditAmsAccountClicked}
                                                         />
 
                                                     );

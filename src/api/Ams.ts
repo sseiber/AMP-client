@@ -1,7 +1,7 @@
 import { FetchResponse, fetchHelper } from './FetchHelper';
 
-export function getUserAmsAccountsApi(scopeId?: string): Promise<FetchResponse> {
-    const path = scopeId ? `/api/v1/ams/account/scope/${scopeId}` : `/api/v1/ams/account/scope`;
+export function getUserAmsAccountsApi(accountName?: string): Promise<FetchResponse> {
+    const path = accountName ? `/api/v1/ams/account/${accountName}` : `/api/v1/ams/account`;
 
     return fetchHelper(path,
         {
@@ -29,7 +29,7 @@ export function setUserAmsAccountApi(amsAccount: any): Promise<FetchResponse> {
         });
 }
 
-export function postCreateAmsStreamingLocator(assetName: string): Promise<FetchResponse> {
+export function postCreateAmsStreamingLocatorApi(accountName: string, assetName: string): Promise<FetchResponse> {
     return fetchHelper(`/api/v1/ams/streaminglocator`,
         {
             method: 'POST',
@@ -39,6 +39,7 @@ export function postCreateAmsStreamingLocator(assetName: string): Promise<FetchR
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
+                accountName,
                 assetName
             })
         });

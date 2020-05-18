@@ -12,10 +12,9 @@ import { ErrorDialog } from './ErrorDialog';
 import { HomePage } from '../pages/HomePage';
 import { AmpPlayerPage } from '../pages/AmpPlayerPage';
 import { UserPage } from '../pages/user/UserPage';
-import { RegisterAmsAccountPage } from '../pages/RegisterAmsAccountPage';
 import { PrivacyDialog } from './PrivacyDialog';
 import { TOUDialog } from './TOUDialog';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 
 interface IAppProps {
     sessionStore: SessionStore;
@@ -60,10 +59,10 @@ export class AppComponent extends React.Component<IAppProps, {}> {
         } = this.props;
 
         let logoMenuTitle = `AMP Client`;
-        let logoMenuLink = `/ampplayer`;
+        let logoMenuLink = `/home`;
         if (sessionStore.authenticationState === AuthenticationState.Authenticated) {
             logoMenuTitle = `AMP Client`;
-            logoMenuLink = `/ampplayer`;
+            logoMenuLink = `/user`;
         }
 
         let userNavItem;
@@ -125,9 +124,8 @@ export class AppComponent extends React.Component<IAppProps, {}> {
                     <Grid.Column>
                         <Switch>
                             <Route exact path="/" component={HomePage} />
-                            <Route exact path="/ampplayer" component={AmpPlayerPage} />
+                            <AuthenticatedRoute exact path="/ampplayer" component={AmpPlayerPage} />
                             <AuthenticatedRoute exact path="/user" component={UserPage} />
-                            <AuthenticatedRoute exact path="/registeramsaccount" component={RegisterAmsAccountPage} />
                             <Redirect from={location.pathname} to="/" />
                             {this.props.children}
                         </Switch>

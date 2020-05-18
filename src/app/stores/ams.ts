@@ -1,8 +1,7 @@
 import { action, observable, runInAction } from 'mobx';
 import { DataStore, StoreEvents, ErrorTypes } from '.';
 import { EventEmitter2 } from 'eventemitter2';
-import { getUserAmsAccountsApi, setUserAmsAccountApi, postCreateAmsStreamingLocator } from '../../api/Ams';
-import moment from 'moment';
+import { getUserAmsAccountsApi, setUserAmsAccountApi, postCreateAmsStreamingLocatorApi } from '../../api/Ams';
 
 const genericError = `Sorry, an unknown error occurred, try again after rebooting your device`;
 
@@ -11,9 +10,6 @@ export class AmsStore implements DataStore {
 
     @observable
     public loading: boolean = true;
-
-    @observable
-    public streamingStartTime: string = moment().utc().toISOString();
 
     @observable
     public amsAccounts: any = [];
@@ -28,7 +24,7 @@ export class AmsStore implements DataStore {
     }
 
     @action
-    public async getUserAmsAccounts(scopeId?: string) {
+    public async getUserAmsAccounts(accountName?: string) {
         let succeeded = false;
 
         runInAction(() => {
@@ -36,7 +32,7 @@ export class AmsStore implements DataStore {
         });
 
         try {
-            const response = await getUserAmsAccountsApi(scopeId);
+            const response = await getUserAmsAccountsApi(accountName);
             if (response.succeeded) {
                 runInAction('getUserAmsAccountsApi', () => {
                     this.amsAccounts = response.body;
@@ -71,13 +67,16 @@ export class AmsStore implements DataStore {
             const response = await setUserAmsAccountApi(amsAccount);
             if (response.succeeded) {
                 runInAction('setUserAmsAccountApi', () => {
-                    const account = this.amsAccounts.find(item => item.id === amsAccount.id);
-                    if (account) {
-                        Object.assign(account, amsAccount);
-                    }
-                    else {
-                        this.amsAccounts.push(amsAccount);
-                    }
+                    this.amsAccounts = response.body;
+
+                    // const updatedAccount = response.body;
+                    // const account = this.amsAccounts.find(item => item.id === updatedAccount.id);
+                    // if (account) {
+                    //     Object.assign(account, updatedAccount);
+                    // }
+                    // else {
+                    //     this.amsAccounts.push(updatedAccount);
+                    // }
                 });
             }
             else {
@@ -98,18 +97,22 @@ export class AmsStore implements DataStore {
     }
 
     @action
-    public async createAmsStreamingLocator(assetName: string, streamingStartTime: string) {
+    public async createAmsStreamingLocator(accountName: string, assetName: string) {
         let succeeded = false;
+
+        if (!assetName || !accountName) {
+            this.emitError('Error', `Missing assetName (an) or accountName (ac) param in url string`);
+            return;
+        }
 
         runInAction(() => {
             this.loading = true;
         });
 
         try {
-            const response = await postCreateAmsStreamingLocator(assetName);
+            const response = await postCreateAmsStreamingLocatorApi(accountName, assetName);
             if (response.succeeded) {
                 runInAction('postCreateAmsStreamingLocator', () => {
-                    this.streamingStartTime = streamingStartTime;
                     this.streamingLocatorFormats = response.body;
                 });
             }

@@ -1,6 +1,6 @@
 import { action, observable, computed } from 'mobx';
 import { DataStore, StoreProvider, StoreEvents } from '.';
-import { bind } from '../../util';
+import { bind } from '../../utils';
 
 export class BusyStore implements DataStore {
     public static displayName = 'busyStore';
