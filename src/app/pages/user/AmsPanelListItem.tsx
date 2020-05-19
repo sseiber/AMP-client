@@ -41,7 +41,7 @@ export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}
                 />
 
                 <Item.Content>
-                    <Item.Header>{`Azure Media Account: ${amsAccountName}`}</Item.Header>
+                    <Item.Header>{`Account: ${amsAccountName}`}</Item.Header>
                     <Item.Description>{`\u00a0`}</Item.Description>
                     <Grid>
                         <Grid.Row>
