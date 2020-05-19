@@ -1,6 +1,6 @@
 {
     "name": "amp-client",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "description": "Amp client demo",
     "main": "index.ts",
     "scripts": {
@@ -9,7 +9,7 @@
         "build": "./node_modules/.bin/webpack --color --config configs/webpack.prod.js --mode production",
         "dockerbuild": "node ./scripts/dockerBuild.js --docker-build",
         "dockerpush": "node ./scripts/dockerBuild.js --docker-push",
-        "preversion": "npm test",
+        "preversion": "npm test && npm build",
         "version": "npm run dockerbuild",
         "postversion": "npm run dockerpush",
         "postinstall": "node ./scripts/setupDevEnvironment.js",
