@@ -59,12 +59,12 @@ export class UserPage extends React.Component<IUserProps, {}> {
 
     @bind
     private onRegisterAmsAccountClicked() {
-        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, {});
+        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, 'Register AMS Account', {});
     }
 
     @bind
     private onEditAmsAccountClicked(amsAccount: any) {
-        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, amsAccount);
+        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, 'Edit AMS Account', amsAccount);
     }
 
     @bind
