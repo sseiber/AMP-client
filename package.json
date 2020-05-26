@@ -1,6 +1,6 @@
 {
     "name": "amp-client",
-    "version": "1.0.12",
+    "version": "1.0.13",
     "description": "Amp client demo",
     "main": "index.ts",
     "scripts": {
