@@ -13,7 +13,7 @@ interface IAmpPlayerProps {
 }
 
 interface IAmpPlayerState {
-    videoLoaded: boolean;
+    ampPlayer: any;
 }
 
 const ampPlayerStyle = 'https://amp.azure.net/libs/amp/2.3.4/skins/###SKIN/azuremediaplayer.min.css';
@@ -24,27 +24,24 @@ export class AmpPlayer extends React.Component<IAmpPlayerProps, IAmpPlayerState>
         skin: 'amp-default'
     };
 
-    private ampPlayerInternal: any;
     private videoElement: any = React.createRef();
 
     constructor(props: any, context?: any) {
         super(props, context);
 
-        this.ampPlayerInternal = null;
-
         this.state = {
-            videoLoaded: false
+            ampPlayer: null
         };
     }
 
-    public get ampPlayer() {
-        return this.ampPlayerInternal;
-    }
-
     public setPlayerSize(clientRect: any) {
-        if (this.ampPlayerInternal) {
-            this.ampPlayerInternal.c.width = clientRect.width;
-            this.ampPlayerInternal.c.height = clientRect.height;
+        const {
+            ampPlayer
+        } = this.state;
+
+        if (ampPlayer) {
+            ampPlayer.c.width = clientRect.width;
+            ampPlayer.c.height = clientRect.height;
         }
     }
 
@@ -71,36 +68,31 @@ export class AmpPlayer extends React.Component<IAmpPlayerProps, IAmpPlayerState>
             // height: '400',
         };
 
-        this.ampPlayerInternal = await this.createAmpPlayer(ampOptions);
+        this.createAmpPlayer(ampOptions);
+    }
 
-        this.ampPlayerInternal.src([
-            {
-                src: `${sourceUrl}(starttime=${startTime},endtime=${moment(startTime).add(1, 'minute').toISOString()})`,
-                type: 'application/vnd.ms-sstr+xml',
-                // type: 'video/mp4',
-                disableUrlRewriter: false
-            }
-        ]);
+    public componentWillUnmount() {
+        const {
+            ampPlayer
+        } = this.state;
 
-        // this.ampPlayerInternal.play();
+        if (ampPlayer) {
+            ampPlayer.dispose();
+        }
 
         this.setState({
-            videoLoaded: true
+            ampPlayer: null
         });
     }
 
     public render() {
         const {
-            sourceUrl
-        } = this.props;
-
-        const {
-            videoLoaded
+            ampPlayer
         } = this.state;
 
         return (
             <div className="amp-player-container">
-                <Dimmer active={!videoLoaded} inverted>
+                <Dimmer active={!ampPlayer} inverted>
                     <Loader size="large">
                         <p>Connecting to video stream...</p>
                     </Loader>
@@ -136,22 +128,39 @@ export class AmpPlayer extends React.Component<IAmpPlayerProps, IAmpPlayerState>
         });
     }
 
-    private async createAmpPlayer(options: any): Promise<any> {
-        return new Promise((resolve, reject) => {
-            try {
-                const player = window['amp'](
-                    this.videoElement.current, options, () => {
-                        player.addEventListener('playing', this.videoStarted);
-                        player.addEventListener('ended', this.videoEnded);
-                        player.addEventListener('error', this.videoError);
+    private createAmpPlayer(options: any) {
+        const {
+            sourceUrl,
+            startTime,
+            onVideoError
+        } = this.props;
 
-                        resolve(player);
+        try {
+            const player = window['amp'](
+                this.videoElement.current, options, () => {
+                    player.addEventListener('playing', this.videoStarted);
+                    player.addEventListener('ended', this.videoEnded);
+                    player.addEventListener('error', this.videoError);
+
+                    player.src([
+                        {
+                            src: `${sourceUrl}(starttime=${startTime},endtime=${moment(startTime).add(1, 'minute').toISOString()})`,
+                            type: 'application/vnd.ms-sstr+xml',
+                            // type: 'video/mp4',
+                            disableUrlRewriter: false
+                        }
+                    ]);
+
+                    // player.play();
+
+                    this.setState({
+                        ampPlayer: player
                     });
-            }
-            catch (ex) {
-                reject(new Error(`An error occurred trying to create the Azure Media Player control: ${ex.message}`));
-            }
-        });
+                });
+        }
+        catch (ex) {
+            onVideoError(`An error occurred trying to create the Azure Media Player control: ${ex.message}`);
+        }
     }
 
     @bind
@@ -178,22 +187,20 @@ export class AmpPlayer extends React.Component<IAmpPlayerProps, IAmpPlayerState>
             onVideoError
         } = this.props;
 
-        const error = this.ampPlayerInternal.error();
+        const {
+            ampPlayer
+        } = this.state;
+
+        const error = ampPlayer.error();
         const errorMessage = this.getAmpErrorMessageFromErrorCode(error.code);
 
         onVideoError(errorMessage);
 
-        return;
-    }
+        ampPlayer.dispose();
 
-    @bind
-    private onSourceEstablished(source: any) {
-        return;
-    }
-
-    @bind
-    private onSourceCompleted(source: any) {
-        return;
+        this.setState({
+            ampPlayer: null
+        });
     }
 
     private getAmpErrorMessageFromErrorCode(errorCode: number): string {
