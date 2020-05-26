@@ -7,6 +7,7 @@ interface IAmsPanelProps {
     amsAccounts: any[];
     onRegisterAmsAccountClicked: () => (void);
     onEditAmsAccountClicked: (amsAccount: any) => (void);
+    onDeleteAmsAccountClicked: (id: string) => (void);
 }
 
 export class AmsPanel extends React.Component<IAmsPanelProps, any> {
@@ -15,7 +16,8 @@ export class AmsPanel extends React.Component<IAmsPanelProps, any> {
             userDisplayName,
             amsAccounts,
             onRegisterAmsAccountClicked,
-            onEditAmsAccountClicked
+            onEditAmsAccountClicked,
+            onDeleteAmsAccountClicked
         } = this.props;
 
         return (
@@ -46,6 +48,7 @@ export class AmsPanel extends React.Component<IAmsPanelProps, any> {
                                                             amsArmEndpoint={amsItem.amsArmEndpoint}
                                                             amsAadEndpoint={amsItem.amsAadEndpoint}
                                                             onEditAmsAccountClicked={onEditAmsAccountClicked}
+                                                            onDeleteAmsAccountClicked={onDeleteAmsAccountClicked}
                                                         />
 
                                                     );

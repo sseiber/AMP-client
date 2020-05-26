@@ -4,6 +4,7 @@ import { SessionStore, AmsStore, ErrorStore } from '../../stores';
 import { observer, inject } from 'mobx-react';
 import { bind } from '../../../utils';
 import { AmsPanel } from './AmsPanel';
+import { ConfirmationDialog } from '../../components/ConfirmationDialog';
 import { RegisterAmsAccountDialog } from '../../components/RegisterAmsAccountDialog';
 
 interface IUserProps {
@@ -15,6 +16,7 @@ interface IUserProps {
 
 @inject('sessionStore', 'amsStore', 'errorStore') @observer
 export class UserPage extends React.Component<IUserProps, {}> {
+    private confirmationDialog: ConfirmationDialog;
     private registerAmsAccountDialog: RegisterAmsAccountDialog;
 
     public async componentDidMount() {
@@ -48,10 +50,15 @@ export class UserPage extends React.Component<IUserProps, {}> {
                                 amsAccounts={amsStore.amsAccounts}
                                 onRegisterAmsAccountClicked={this.onRegisterAmsAccountClicked}
                                 onEditAmsAccountClicked={this.onEditAmsAccountClicked}
+                                onDeleteAmsAccountClicked={this.onDeleteAmsAccountClicked}
                             />
                         </Grid.Column>
                     </Grid.Row>
                 </Grid>
+                <ConfirmationDialog
+                    ref={r => this.confirmationDialog = r}
+                    onConfirmationCompletion={this.onConfirmationCompletion}
+                />
                 <RegisterAmsAccountDialog ref={r => this.registerAmsAccountDialog = r} />
             </div>
         );
@@ -59,7 +66,7 @@ export class UserPage extends React.Component<IUserProps, {}> {
 
     @bind
     private onRegisterAmsAccountClicked() {
-        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, 'Register AMS Account', {});
+        this.registerAmsAccountDialog.doModal(this.onRegisterAmsAccountDialogCompletion, 'Register AMS Account');
     }
 
     @bind
@@ -77,6 +84,19 @@ export class UserPage extends React.Component<IUserProps, {}> {
         let errorMessage;
 
         try {
+            // Proactively adding trailing slashes to the ARM AAD Audience, ARM Endpoint, and AAD Endpoint values
+            if (amsAccount.amsArmAadAudience.slice(-1) !== '/') {
+                amsAccount.amsArmAadAudience = `${amsAccount.amsArmAadAudience}/`;
+            }
+
+            if (amsAccount.amsArmEndpoint.slice(-1) !== '/') {
+                amsAccount.amsArmEndpoint = `${amsAccount.amsArmEndpoint}/`;
+            }
+
+            if (amsAccount.amsAadEndpoint.slice(-1) !== '/') {
+                amsAccount.amsAadEndpoint = `${amsAccount.amsAadEndpoint}/`;
+            }
+
             const result = await amsStore.setUserAmsAccount(amsAccount);
             if (!result) {
                 errorMessage = `Error while trying to update the user AMS account`;
@@ -92,5 +112,19 @@ export class UserPage extends React.Component<IUserProps, {}> {
                 errorMessage
             );
         }
+    }
+
+    @bind
+    private onDeleteAmsAccountClicked(id: string) {
+        this.confirmationDialog.doModal('AMS Account', 'Are you sure you want to delete the AMS account', 'Delete', id);
+    }
+
+    @bind
+    private async onConfirmationCompletion(complete: boolean, data: any) {
+        const {
+            amsStore
+        } = this.props;
+
+        await amsStore.deleteUserAmsAccount(data);
     }
 }

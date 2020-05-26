@@ -15,6 +15,7 @@ interface IAmsPanelListItemProps {
     amsArmEndpoint: string;
     amsAadEndpoint: string;
     onEditAmsAccountClicked: (amsAccount: any) => (void);
+    onDeleteAmsAccountClicked: (id: string) => (void);
 }
 
 export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}> {
@@ -29,8 +30,7 @@ export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}
             amsSubscriptionId,
             amsArmAadAudience,
             amsArmEndpoint,
-            amsAadEndpoint,
-            onEditAmsAccountClicked
+            amsAadEndpoint
         } = this.props;
 
         return (
@@ -82,6 +82,7 @@ export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}
                         <Grid.Row>
                             <Grid.Column width={16}>
                                 <Item.Extra>
+                                    <Button floated={'right'} size={'mini'} color={'red'} onClick={this.onDeletePanelItem}>Delete</Button>
                                     <Button floated={'right'} size={'mini'} color={'green'} onClick={this.onEditPanelItem}>Edit</Button>
                                 </Item.Extra>
                             </Grid.Column>
@@ -90,6 +91,16 @@ export class AmsPanelListItem extends React.Component<IAmsPanelListItemProps, {}
                 </Item.Content>
             </Item>
         );
+    }
+
+    @bind
+    private onDeletePanelItem(e: any) {
+        const {
+            id,
+            onDeleteAmsAccountClicked
+        } = this.props;
+
+        onDeleteAmsAccountClicked(id);
     }
 
     @bind

@@ -1,7 +1,12 @@
 import { action, observable, runInAction } from 'mobx';
 import { DataStore, StoreEvents, ErrorTypes } from '.';
 import { EventEmitter2 } from 'eventemitter2';
-import { getUserAmsAccountsApi, setUserAmsAccountApi, postCreateAmsStreamingLocatorApi } from '../../api/Ams';
+import {
+    getUserAmsAccountsApi,
+    setUserAmsAccountApi,
+    deleteUserAmsAccountApi,
+    postCreateAmsStreamingLocatorApi
+} from '../../api/Ams';
 
 const genericError = `Sorry, an unknown error occurred, try again after rebooting your device`;
 
@@ -16,6 +21,9 @@ export class AmsStore implements DataStore {
 
     @observable
     public streamingLocatorFormats: any = [];
+
+    @observable
+    public streamingLocatorError: string = '';
 
     private _emitter = new EventEmitter2();
 
@@ -96,6 +104,39 @@ export class AmsStore implements DataStore {
         return succeeded;
     }
 
+
+    @action
+    public async deleteUserAmsAccount(amsAccountId: any) {
+        let succeeded = false;
+
+        runInAction(() => {
+            this.loading = true;
+        });
+
+        try {
+            const response = await deleteUserAmsAccountApi(amsAccountId);
+            if (response.succeeded) {
+                runInAction('setUserAmsAccountApi', () => {
+                    this.amsAccounts = [];
+                });
+            }
+            else {
+                this.emitError('AMP Client error', 'An error occurred while deleting the AMS account');
+            }
+
+            succeeded = response.succeeded;
+        }
+        catch (error) {
+            this.emitError('Unknown error', genericError);
+        }
+
+        runInAction(() => {
+            this.loading = false;
+        });
+
+        return succeeded;
+    }
+
     @action
     public async createAmsStreamingLocator(accountName: string, assetName: string) {
         let succeeded = false;
@@ -111,13 +152,40 @@ export class AmsStore implements DataStore {
 
         try {
             const response = await postCreateAmsStreamingLocatorApi(accountName, assetName);
-            if (response.succeeded) {
+            if (response.succeeded && response.body.statusMessage === 'SUCCESS') {
                 runInAction('postCreateAmsStreamingLocator', () => {
-                    this.streamingLocatorFormats = response.body;
+                    this.streamingLocatorFormats = response.body.data;
                 });
             }
             else {
-                this.emitError('Error', response.message);
+                let errorMessage = response.message;
+
+                const statusMessage = response.body.statusMessage || '';
+                switch (statusMessage) {
+                    case 'ERROR_NO_AMS_ACCOUNT':
+                        errorMessage = 'No registered Azure Media account was found.\nPlease register the AMS account that was used to create the cloud recordings on the Azure Media service.\nYou can get the registration information from the Azure Portal.';
+                        break;
+
+                    case 'ERROR_ASSET_NOT_FOUND':
+                        errorMessage = 'The Azure Media asset specified in the URL was not found.\nThe link may be old or the Azure Media recording asset may no longer exists in your AMS account.';
+                        break;
+
+                    case 'ERROR_ACCESSING_STREAMING_LOCATOR':
+                        errorMessage = 'An error occurred while trying to access an existing streaming locator for the specified Azure Media asset.\nThe link may be old or the Azure Media recording asset may no longer exists in your AMS account.';
+                        break;
+
+                    case 'ERROR_CREATING_STREAMING_LOCATOR':
+                        errorMessage = 'An error occured while trying to create a streaming resource for the Azure Media asset specified in the URL.\nPlease check your registered AMS account settings and verify that they match the information from in the Azure Portal.';
+                        break;
+
+                    case 'ERROR_UNKNOWN':
+                        errorMessage = 'An error occured while trying to access the video link specified in the URL.\nPlease check your registered AMS account settings and verify that they match the information from in the Azure Portal.';
+                        break;
+                }
+                // this.emitError('Media Playback Error', errorMessage);
+                runInAction('streamingLocatorError', () => {
+                    this.streamingLocatorError = errorMessage;
+                });
             }
 
             succeeded = response.succeeded;
@@ -131,6 +199,20 @@ export class AmsStore implements DataStore {
         });
 
         return succeeded;
+    }
+
+    @action
+    public setStreamingLocatorError(error: string) {
+        runInAction('streamingLocatorError', () => {
+            this.streamingLocatorError = error;
+        });
+    }
+
+    @action
+    public clearStreamingLocatorError() {
+        runInAction('streamingLocatorError', () => {
+            this.streamingLocatorError = '';
+        });
     }
 
     private emitError(title: string, message: string) {

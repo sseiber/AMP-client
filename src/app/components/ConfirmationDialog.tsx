@@ -11,6 +11,7 @@ interface IConfirmationDialogState {
     title: string;
     message: string;
     actionLabel: string;
+    data: any;
 }
 
 export class ConfirmationDialog extends React.Component<IConfirmationDialogProps, IConfirmationDialogState> {
@@ -21,16 +22,18 @@ export class ConfirmationDialog extends React.Component<IConfirmationDialogProps
             visible: false,
             title: '',
             message: '',
-            actionLabel: ''
+            actionLabel: '',
+            data: {}
         };
     }
 
-    public doModal(title: string, message: string, actionLabel: string) {
+    public doModal(title: string, message: string, actionLabel: string, data: any) {
         this.setState({
             visible: true,
             title,
             message,
-            actionLabel
+            actionLabel,
+            data
         });
     }
 
@@ -72,8 +75,12 @@ export class ConfirmationDialog extends React.Component<IConfirmationDialogProps
             onConfirmationCompletion
         } = this.props;
 
+        const {
+            data
+        } = this.state;
+
         this.onCloseModal(e);
 
-        onConfirmationCompletion(true, {});
+        onConfirmationCompletion(true, data);
     }
 }

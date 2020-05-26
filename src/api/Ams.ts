@@ -29,8 +29,20 @@ export function setUserAmsAccountApi(amsAccount: any): Promise<FetchResponse> {
         });
 }
 
+export function deleteUserAmsAccountApi(amsAccountId: string): Promise<FetchResponse> {
+    return fetchHelper(`/api/v1/ams/account/${amsAccountId}`,
+        {
+            method: 'DELETE',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+}
+
 export function postCreateAmsStreamingLocatorApi(accountName: string, assetName: string): Promise<FetchResponse> {
-    return fetchHelper(`/api/v1/ams/streaminglocator`,
+    return fetchHelper(`/api/v1/ams/account/${accountName}/streaminglocator`,
         {
             method: 'POST',
             credentials: 'same-origin',
@@ -39,7 +51,6 @@ export function postCreateAmsStreamingLocatorApi(accountName: string, assetName:
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                accountName,
                 assetName
             })
         });

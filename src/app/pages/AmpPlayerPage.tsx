@@ -59,16 +59,26 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
             streamingStartTime
         } = this.state;
 
-        const dateHeader = moment.utc(streamingStartTime, moment.ISO_8601, true).format('dddd, MMMM Do YYYY h:mm:ss a');
+        const isError = amsStore.streamingLocatorError !== '';
+
+        const dateHeader = isError
+            ? 'Video Playback Error'
+            : moment.utc(streamingStartTime, moment.ISO_8601, true).format('dddd, MMMM Do YYYY h:mm:ss a');
 
         return (
             <Grid style={{ padding: '5em 5em' }}>
                 <Grid.Row>
                     <Grid.Column>
-                        <Message size="huge">
+                        <Message size="huge" color={isError ? 'yellow' : 'grey'}>
                             <Message.Header>{`${dateHeader} UTC`}</Message.Header>
                             <p />
-                            {this.getAmpPlayerComponent()}
+                            {
+                                isError
+                                    ? this.addLineBreaks(amsStore.streamingLocatorError)
+                                    : (
+                                        this.getAmpPlayerComponent()
+                                    )
+                            }
                         </Message>
                     </Grid.Column>
                 </Grid.Row>
@@ -119,7 +129,17 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
     }
 
     @bind
-    private onVideoError(error: string) {
-        return;
+    private onVideoError(errorMessage: string) {
+        const {
+            amsStore
+        } = this.props;
+
+        amsStore.setStreamingLocatorError(errorMessage);
+    }
+
+    private addLineBreaks(text: string) {
+        return text.split('\n').map((chunk, index) => (
+            <p key={index}>{chunk}</p>
+        ));
     }
 }
