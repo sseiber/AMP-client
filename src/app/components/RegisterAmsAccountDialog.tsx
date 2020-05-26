@@ -60,7 +60,7 @@ export class RegisterAmsAccountDialog extends React.Component<any, IRegisterAmsA
                     amsSubscriptionId: '',
                     amsArmAadAudience: '',
                     amsArmEndpoint: '',
-                    amsAadEndpoint: '',
+                    amsAadEndpoint: ''
                 }
             ),
             valid: false,

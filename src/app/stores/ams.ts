@@ -104,7 +104,6 @@ export class AmsStore implements DataStore {
         return succeeded;
     }
 
-
     @action
     public async deleteUserAmsAccount(amsAccountId: any) {
         let succeeded = false;
