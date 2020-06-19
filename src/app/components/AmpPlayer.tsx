@@ -6,6 +6,7 @@ import moment from 'moment';
 interface IAmpPlayerProps {
     sourceUrl: string;
     startTime: string;
+    duration: number;
     skin?: string;
     onVideoStarted: () => void;
     onVideoEnded: () => void;
@@ -47,8 +48,6 @@ export class AmpPlayer extends React.Component<IAmpPlayerProps, IAmpPlayerState>
 
     public async componentDidMount() {
         const {
-            sourceUrl,
-            startTime,
             skin
         } = this.props;
 
@@ -132,6 +131,7 @@ export class AmpPlayer extends React.Component<IAmpPlayerProps, IAmpPlayerState>
         const {
             sourceUrl,
             startTime,
+            duration,
             onVideoError
         } = this.props;
 
@@ -144,7 +144,7 @@ export class AmpPlayer extends React.Component<IAmpPlayerProps, IAmpPlayerState>
 
                     player.src([
                         {
-                            src: `${sourceUrl}(starttime=${startTime},endtime=${moment(startTime).add(1, 'minute').toISOString()})`,
+                            src: `${sourceUrl}(starttime=${startTime},endtime=${moment(startTime).add(duration, 'seconds').toISOString()})`,
                             type: 'application/vnd.ms-sstr+xml',
                             // type: 'video/mp4',
                             disableUrlRewriter: false

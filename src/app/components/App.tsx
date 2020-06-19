@@ -18,12 +18,11 @@ import { bind } from '../../utils';
 
 interface IAppProps {
     sessionStore: SessionStore;
-    amsStore: AmsStore;
     location: any;
     history: any;
 }
 
-@inject('sessionStore', 'amsStore') @observer
+@inject('sessionStore') @observer
 export class AppComponent extends React.Component<IAppProps, {}> {
     private privacyDialog: PrivacyDialog;
     private touDialog: TOUDialog;
@@ -31,7 +30,6 @@ export class AppComponent extends React.Component<IAppProps, {}> {
     public componentDidMount() {
         const {
             sessionStore,
-            amsStore,
             history,
             location
         } = this.props;

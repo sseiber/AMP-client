@@ -63,6 +63,7 @@ configs/imageConfig.json
 
 # Build output
 dist
+client_dist
 
 # Ignore Mac DS_Store files
 .DS_Store

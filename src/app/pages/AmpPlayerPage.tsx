@@ -14,6 +14,7 @@ interface IAmpPlayerPage {
 
 interface IAmpPlayerPageState {
     streamingStartTime: string;
+    streamingDuration: number;
     videoLoaded: boolean;
 }
 
@@ -24,6 +25,7 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
 
         this.state = {
             streamingStartTime: '',
+            streamingDuration: 0,
             videoLoaded: false
         };
     }
@@ -40,9 +42,11 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
                 const accountName = query.ac as string;
                 const assetName = query.an as string;
                 const streamingStartTime = (moment.utc(query.st as string, moment.ISO_8601, true) || moment.utc(0, moment.ISO_8601, true)).format('YYYY-MM-DDTHH:mm:ss[Z]');
+                const streamingDuration = Number(query.du) || 60;
 
                 this.setState({
-                    streamingStartTime
+                    streamingStartTime,
+                    streamingDuration
                 });
 
                 await amsStore.createAmsStreamingLocator(accountName, assetName);
@@ -92,7 +96,8 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
         } = this.props;
 
         const {
-            streamingStartTime
+            streamingStartTime,
+            streamingDuration
         } = this.state;
 
         const sourceItem = amsStore.streamingLocatorFormats.find((item) => item.protocol === 'SmoothStreaming');
@@ -101,6 +106,7 @@ export class AmpPlayerPage extends React.Component<IAmpPlayerPage, IAmpPlayerPag
                 <AmpPlayer
                     sourceUrl={sourceItem.streamingLocatorUrl}
                     startTime={streamingStartTime}
+                    duration={streamingDuration}
                     onVideoStarted={this.onVideoStarted}
                     onVideoEnded={this.onVideoEnded}
                     onVideoError={this.onVideoError}
